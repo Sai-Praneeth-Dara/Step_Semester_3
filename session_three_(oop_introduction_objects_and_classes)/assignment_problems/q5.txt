@@ -1,0 +1,57 @@
+import java.util.*;
+
+public class WordFrequencyReport {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter feedback paragraph: ");
+        String text = sc.nextLine();
+
+        // Stop words
+        Set<String> stopWords = new HashSet<>(
+                Arrays.asList("the", "was", "and", "a", "is", "of", "in")
+        );
+
+        // Convert to lowercase
+        text = text.toLowerCase();
+
+        // Remove punctuation
+        text = text.replace(".", "");
+        text = text.replace(",", "");
+
+        // Split into words
+        String[] words = text.split("\\s+");
+
+        // Store word frequencies
+        HashMap<String, Integer> frequency = new HashMap<>();
+
+        for (String word : words) {
+
+            // Skip stop words
+            if (stopWords.contains(word)) {
+                continue;
+            }
+
+            // Count frequency
+            frequency.put(word, frequency.getOrDefault(word, 0) + 1);
+        }
+
+        // Convert HashMap entries to a list
+        List<Map.Entry<String, Integer>> entries =
+                new ArrayList<>(frequency.entrySet());
+
+        // Sort by count in descending order
+        entries.sort((a, b) -> b.getValue() - a.getValue());
+
+        // Print report
+        System.out.println("\n===== WORD FREQUENCY REPORT =====");
+
+        for (Map.Entry<String, Integer> entry : entries) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+
+        sc.close();
+    }
+}
