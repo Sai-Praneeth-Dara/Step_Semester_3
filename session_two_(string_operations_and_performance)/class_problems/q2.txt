@@ -1,0 +1,32 @@
+import java.util.Scanner;
+
+public class CSVStudentRecordParser {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter student record: ");
+        String record = sc.nextLine();
+
+        // Split CSV line into fields
+        String[] fields = record.split(",");
+
+        // Validate exactly 3 fields
+        if (fields.length != 3) {
+            System.out.println("Invalid Record");
+        } else {
+
+            String name = fields[0];
+            String rollNumber = fields[1];
+            String department = fields[2];
+
+            // Print formatted record
+            System.out.println("Name: " + name
+                    + " | Roll No: " + rollNumber
+                    + " | Dept: " + department);
+        }
+
+        sc.close();
+    }
+}
