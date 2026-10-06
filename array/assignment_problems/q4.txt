@@ -1,0 +1,53 @@
+public class LibraryMembershipDemo {
+
+    static class MembershipCard {
+
+        // Static fields
+        static String libraryName;
+        static String validUntil;
+
+        // Instance field
+        String studentName;
+
+        // Static block
+        static {
+            libraryName = "SRM Central Library";
+            validUntil = "May 2027";
+
+            System.out.println("Library info loaded");
+        }
+
+        // Constructor
+        MembershipCard(String studentName) {
+            this.studentName = studentName;
+        }
+    }
+
+    public static void main(String[] args) {
+
+        // Student names
+        String[] students = {
+                "Suhail",
+                "Rahul",
+                "Priya",
+                "Arjun",
+                "Ananya"
+        };
+
+        // Create cards using a loop
+        for (String name : students) {
+
+            MembershipCard card =
+                    new MembershipCard(name);
+
+            System.out.println(
+                    "Membership card created for "
+                    + card.studentName
+                    + " | Library: "
+                    + MembershipCard.libraryName
+                    + " | Valid Until: "
+                    + MembershipCard.validUntil
+            );
+        }
+    }
+}

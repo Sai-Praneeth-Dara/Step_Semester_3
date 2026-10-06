@@ -1,0 +1,77 @@
+public class ParkingFineDemo {
+
+    static class ParkingTicket {
+
+        String vehicleNo;
+        double ratePerMinute;
+
+        // Constructor
+        ParkingTicket(String vehicleNo, double ratePerMinute) {
+            this.vehicleNo = vehicleNo;
+            this.ratePerMinute = ratePerMinute;
+        }
+
+        // Final method - cannot be overridden
+        final double calculateFine(int overstayMinutes) {
+            return overstayMinutes * ratePerMinute;
+        }
+
+        // Final method - cannot be overridden
+        final void printReceipt(int overstayMinutes) {
+
+            double fine = calculateFine(overstayMinutes);
+
+            System.out.println(
+                    vehicleNo + " - Fine: ₹" + fine
+            );
+        }
+    }
+
+    public static void main(String[] args) {
+
+        // Parallel arrays
+        String[] vehicleNumbers = {
+                "TN01AB1234",
+                "TN02CD5678",
+                "TN03EF9012",
+                "TN04GH3456"
+        };
+
+        double[] rates = {
+                5.0,
+                7.5,
+                10.0,
+                6.0
+        };
+
+        int[] overstayMinutes = {
+                20,
+                0,
+                -5,
+                15
+        };
+
+        // Process each parking ticket
+        for (int i = 0; i < vehicleNumbers.length; i++) {
+
+            ParkingTicket ticket =
+                    new ParkingTicket(
+                            vehicleNumbers[i],
+                            rates[i]
+                    );
+
+            // Check whether vehicle overstayed
+            if (overstayMinutes[i] > 0) {
+
+                ticket.printReceipt(overstayMinutes[i]);
+
+            } else {
+
+                System.out.println(
+                        vehicleNumbers[i]
+                        + " - No fine, within allotted time"
+                );
+            }
+        }
+    }
+}

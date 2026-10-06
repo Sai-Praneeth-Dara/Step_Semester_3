@@ -1,0 +1,43 @@
+public class CanteenInventory {
+
+    static class Item {
+
+        String itemName;
+        int stock;
+
+        // Constructor
+        Item(String itemName, int stock) {
+
+            this.itemName = itemName;
+            this.stock = stock;
+        }
+
+        // Restock method
+        void restock(int stock) {
+
+            this.stock = this.stock + stock;
+        }
+    }
+
+    public static void main(String[] args) {
+
+        // Create an array of 4 Item objects
+        Item[] items = {
+                new Item("Burger", 30),
+                new Item("Sandwich", 25),
+                new Item("Juice", 40),
+                new Item("Chips", 50)
+        };
+
+        // Restock every item by 20
+        for (Item item : items) {
+
+            item.restock(20);
+
+            System.out.println(
+                    "Item: " + item.itemName
+                    + " | Final Stock: " + item.stock
+            );
+        }
+    }
+}

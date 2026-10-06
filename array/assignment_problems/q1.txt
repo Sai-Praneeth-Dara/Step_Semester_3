@@ -1,0 +1,75 @@
+public class HackathonRegistration {
+
+    static class Participant {
+
+        String name;
+        String teamName;
+        boolean registered;
+
+        // Constructor for participants with a team
+        Participant(String name, String teamName) {
+
+            this.name = name;
+            this.teamName = teamName;
+            this.registered = true;
+        }
+
+        // Constructor for solo participants
+        Participant(String name) {
+
+            this(name, "Unassigned");
+        }
+
+        // Print participant details
+        void printStatus() {
+
+            System.out.println(
+                    "Name: " + name
+                    + " | Team: " + teamName
+                    + " | Registered: " + registered
+            );
+        }
+    }
+
+    public static void main(String[] args) {
+
+        // Parallel arrays
+        String[] names = {
+                "Suhail",
+                "Rahul",
+                "Priya",
+                "Arjun"
+        };
+
+        String[] teamNames = {
+                "Code Warriors",
+                "",
+                "Tech Titans",
+                ""
+        };
+
+        // Process every participant
+        for (int i = 0; i < names.length; i++) {
+
+            Participant participant;
+
+            // Check whether team name is empty
+            if (teamNames[i].isEmpty()) {
+
+                // Solo participant
+                participant = new Participant(names[i]);
+
+            } else {
+
+                // Participant already has a team
+                participant = new Participant(
+                        names[i],
+                        teamNames[i]
+                );
+            }
+
+            // Print status inside the same loop
+            participant.printStatus();
+        }
+    }
+}

@@ -1,0 +1,85 @@
+public class PaymentDemo {
+
+    // Parent class
+    static class Payment {
+
+        void pay(double amount) {
+            System.out.println("Cash payment: " + amount);
+        }
+    }
+
+    // Child class
+    static class CardPayment extends Payment {
+
+        void payWithProcessingFee(double amount) {
+
+            double fee = amount * 0.02;
+            double total = amount + fee;
+
+            System.out.println(
+                    "Card payment: " + amount
+                    + " | Fee: " + fee
+                    + " | Total charged: " + total
+            );
+        }
+    }
+
+    // Process one transaction
+    static double processTransaction(Payment payment, double amount) {
+
+        if (payment instanceof CardPayment) {
+
+            // Type casting
+            CardPayment cardPayment =
+                    (CardPayment) payment;
+
+            cardPayment.payWithProcessingFee(amount);
+
+            // Return actual charged amount
+            return amount + (amount * 0.02);
+
+        } else {
+
+            payment.pay(amount);
+
+            // Cash has no processing fee
+            return amount;
+        }
+    }
+
+    public static void main(String[] args) {
+
+        // Payment array containing different types of payments
+        Payment[] payments = {
+                new CardPayment(),
+                new Payment(),
+                new CardPayment(),
+                new Payment(),
+                new CardPayment()
+        };
+
+        // Amount for each transaction
+        double[] amounts = {
+                1000,
+                500,
+                750,
+                1200,
+                2000
+        };
+
+        double totalCollected = 0;
+
+        // Process all transactions
+        for (int i = 0; i < payments.length; i++) {
+
+            double chargedAmount =
+                    processTransaction(payments[i], amounts[i]);
+
+            totalCollected += chargedAmount;
+        }
+
+        // Print total collected
+        System.out.println("\nTotal Collected: "
+                + totalCollected);
+    }
+}
