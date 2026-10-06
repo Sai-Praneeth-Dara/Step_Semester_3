@@ -1,0 +1,40 @@
+class Employee {
+    String name;
+    double salary;
+
+    // Constructor
+    Employee(String name, double salary) {
+        this.name = name;
+        this.salary = salary;
+    }
+
+    // Raise salary by bonus amount
+    void raiseSalary(double salary) {
+        this.salary = this.salary + salary;
+    }
+
+    // Print employee details
+    void printSalary() {
+        System.out.println("Employee: " + name + " | Final Salary: " + this.salary);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        Employee[] employees = {
+            new Employee("Suhail", 30000),
+            new Employee("Rahul", 35000),
+            new Employee("Priya", 40000),
+            new Employee("Arjun", 32000)
+        };
+
+        double bonus = 5000;
+
+        // Single pass
+        for (Employee employee : employees) {
+            employee.raiseSalary(bonus);
+            employee.printSalary();
+        }
+    }
+}

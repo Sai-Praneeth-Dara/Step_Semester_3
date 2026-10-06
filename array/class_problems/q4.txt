@@ -1,0 +1,48 @@
+class SrmStudent {
+
+    static String collegeName;
+    static String academicYear;
+
+    String studentName;
+
+    // Static block - runs only once
+    static {
+        collegeName = "SRM Institute of Science and Technology";
+        academicYear = "2026-2027";
+
+        System.out.println("College information loaded.");
+    }
+
+    // Constructor
+    SrmStudent(String studentName) {
+        this.studentName = studentName;
+    }
+
+    // Print confirmation
+    void printConfirmation() {
+        System.out.println(
+            "Student registered: " + studentName +
+            " | College: " + collegeName +
+            " | Academic Year: " + academicYear
+        );
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        String[] names = {
+            "Suhail",
+            "Rahul",
+            "Priya",
+            "Arjun",
+            "Ananya"
+        };
+
+        // Create all students in a loop
+        for (String name : names) {
+            SrmStudent student = new SrmStudent(name);
+            student.printConfirmation();
+        }
+    }
+}

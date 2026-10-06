@@ -1,0 +1,87 @@
+class FeeAccount {
+
+    String accountName;
+
+    FeeAccount(String accountName) {
+        this.accountName = accountName;
+    }
+
+    void processPayment(double amount) {
+        System.out.println(
+            accountName + " - Fee payment processed: Rs." + amount
+        );
+    }
+}
+
+class HostelFeeAccount extends FeeAccount {
+
+    HostelFeeAccount(String accountName) {
+        super(accountName);
+    }
+
+    void processHostelPayment(double amount) {
+        double hostelFee = amount + 500;
+
+        System.out.println(
+            accountName + " - Hostel fee payment processed: Rs." + hostelFee
+        );
+    }
+}
+
+public class Main {
+
+    // Dispatch payment based on account type
+    static void processPayment(FeeAccount account, double amount) {
+
+        if (account instanceof HostelFeeAccount) {
+
+            HostelFeeAccount hostelAccount =
+                    (HostelFeeAccount) account;
+
+            hostelAccount.processHostelPayment(amount);
+
+        } else {
+
+            account.processPayment(amount);
+        }
+    }
+
+    public static void main(String[] args) {
+
+        FeeAccount[] accounts = {
+            new FeeAccount("Suhail"),
+            new HostelFeeAccount("Rahul"),
+            new FeeAccount("Priya"),
+            new HostelFeeAccount("Arjun"),
+            new HostelFeeAccount("Ananya")
+        };
+
+        double[] amounts = {
+            2000,
+            3000,
+            2500,
+            3500,
+            4000
+        };
+
+        int feeAccountCount = 0;
+        int hostelFeeAccountCount = 0;
+
+        // Process complete batch in one pass
+        for (int i = 0; i < accounts.length; i++) {
+
+            processPayment(accounts[i], amounts[i]);
+
+            if (accounts[i] instanceof HostelFeeAccount) {
+                hostelFeeAccountCount++;
+            } else {
+                feeAccountCount++;
+            }
+        }
+
+        // Print counters once after processing
+        System.out.println("\nBatch Summary:");
+        System.out.println("Plain Fee Accounts Processed: " + feeAccountCount);
+        System.out.println("Hostel Fee Accounts Processed: " + hostelFeeAccountCount);
+    }
+}

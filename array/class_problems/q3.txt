@@ -1,0 +1,52 @@
+class Account {
+    String accountNumber;
+    double feePerDay;
+
+    Account(String accountNumber, double feePerDay) {
+        this.accountNumber = accountNumber;
+        this.feePerDay = feePerDay;
+    }
+
+    // final method - cannot be overridden
+    final double calculateLateFee(int daysLate) {
+        return daysLate * feePerDay;
+    }
+
+    // final method - cannot be overridden
+    final void printSummary(int daysLate) {
+        double fee = calculateLateFee(daysLate);
+
+        System.out.println(
+            "Account: " + accountNumber +
+            " | Days Late: " + daysLate +
+            " | Late Fee: Rs." + fee
+        );
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+
+        Account[] accounts = {
+            new Account("ACC101", 50),
+            new Account("ACC102", 30),
+            new Account("ACC103", 40),
+            new Account("ACC104", 25)
+        };
+
+        int[] daysLate = {5, 0, -2, 3};
+
+        // Single pass
+        for (int i = 0; i < accounts.length; i++) {
+
+            if (daysLate[i] <= 0) {
+                System.out.println(
+                    "Account: " + accounts[i].accountNumber +
+                    " | Skipped - Not Late"
+                );
+            } else {
+                accounts[i].printSummary(daysLate[i]);
+            }
+        }
+    }
+}
