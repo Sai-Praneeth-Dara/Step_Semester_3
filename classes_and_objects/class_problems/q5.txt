@@ -1,0 +1,178 @@
+class LibraryMember {
+
+    private static int nextMemberNumber = 1;
+    private static int membersEnrolled = 0;
+
+    private final int memberNumber;
+    private int borrowLimit;
+    private int booksBorrowed;
+    private String lastGenre;
+
+    public LibraryMember(int borrowLimit) {
+        this.borrowLimit = borrowLimit;
+        this.booksBorrowed = 0;
+        this.memberNumber = nextMemberNumber++;
+        membersEnrolled++;
+    }
+
+    public void borrowBook() {
+        if (booksBorrowed < borrowLimit) {
+            booksBorrowed++;
+        }
+    }
+
+    public void borrowBook(String genre) {
+        borrowBook();
+        this.lastGenre = genre;
+    }
+
+    public int getMemberNumber() {
+        return memberNumber;
+    }
+
+    public int getBooksBorrowed() {
+        return booksBorrowed;
+    }
+
+    public static boolean isValidRenewalCode(String code) {
+
+        if (code == null || code.length() != 4) {
+            return false;
+        }
+
+        if (code.charAt(0) != 'R') {
+            return false;
+        }
+
+        if (!Character.isDigit(code.charAt(1))) {
+            return false;
+        }
+
+        if (!Character.isDigit(code.charAt(2))) {
+            return false;
+        }
+
+        if (!Character.isUpperCase(code.charAt(3))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static int getMembersEnrolled() {
+        return membersEnrolled;
+    }
+}
+
+class StudentMember extends LibraryMember {
+
+    private String course;
+
+    public StudentMember(int borrowLimit, String course) {
+        super(borrowLimit);
+        this.course = course;
+    }
+}
+
+class FacultyMember extends LibraryMember {
+
+    private String department;
+
+    public FacultyMember(int borrowLimit, String department) {
+        super(borrowLimit);
+        this.department = department;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+}
+
+public class Main {
+
+    static String processNightlyAudit(LibraryMember[] members) {
+
+        StringBuilder result = new StringBuilder();
+
+        for (LibraryMember member : members) {
+
+            if (member == null) {
+                result.append("Skipped missing entry\n");
+                continue;
+            }
+
+            if (member instanceof FacultyMember) {
+
+                FacultyMember faculty =
+                        (FacultyMember) member;
+
+                result.append("Faculty Member ")
+                      .append(faculty.getMemberNumber())
+                      .append(" | Department: ")
+                      .append(faculty.getDepartment())
+                      .append(" | Books Borrowed: ")
+                      .append(faculty.getBooksBorrowed())
+                      .append("\n");
+
+            } else {
+
+                result.append("Regular Member ")
+                      .append(member.getMemberNumber())
+                      .append(" | Books Borrowed: ")
+                      .append(member.getBooksBorrowed())
+                      .append("\n");
+            }
+        }
+
+        return result.toString();
+    }
+
+    public static void main(String[] args) {
+
+        LibraryMember member1 =
+                new LibraryMember(5);
+
+        StudentMember student =
+                new StudentMember(
+                        4,
+                        "Computer Science"
+                );
+
+        FacultyMember faculty =
+                new FacultyMember(
+                        8,
+                        "Computer Science"
+                );
+
+        member1.borrowBook();
+        student.borrowBook("Fiction");
+        faculty.borrowBook();
+
+        LibraryMember[] members = {
+            member1,
+            null,
+            student,
+            faculty,
+            null
+        };
+
+        System.out.println(
+                processNightlyAudit(members)
+        );
+
+        System.out.println(
+                "Members Enrolled: " +
+                LibraryMember.getMembersEnrolled()
+        );
+
+        System.out.println(
+                "R12A: " +
+                LibraryMember.isValidRenewalCode("R12A")
+        );
+
+        System.out.println(
+                "R1AA: " +
+                LibraryMember.isValidRenewalCode("R1AA")
+        );
+    }
+}

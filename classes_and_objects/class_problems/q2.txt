@@ -1,0 +1,161 @@
+class LibraryMember {
+
+    private String memberId;
+    private int borrowLimit;
+    private int booksBorrowed;
+
+    public LibraryMember(String memberId, int borrowLimit) {
+        if (memberId == null ||
+            memberId.trim().isEmpty() ||
+            memberId.trim().length() < 4) {
+            throw new IllegalArgumentException("Invalid memberId");
+        }
+
+        this.memberId = memberId;
+        this.borrowLimit = borrowLimit;
+        this.booksBorrowed = 0;
+    }
+
+    public void borrowBook() {
+        if (booksBorrowed < borrowLimit) {
+            booksBorrowed++;
+        }
+    }
+
+    public int getBooksBorrowed() {
+        return booksBorrowed;
+    }
+}
+
+class StudentMember extends LibraryMember {
+
+    private String course;
+
+    public StudentMember(String memberId, int borrowLimit, String course) {
+        super(memberId, borrowLimit);
+        this.course = course;
+    }
+}
+
+class HonorsStudentMember extends StudentMember {
+
+    private int bonusLimit;
+
+    public HonorsStudentMember(
+            String memberId,
+            int borrowLimit,
+            String course,
+            int bonusLimit) {
+
+        super(memberId, borrowLimit, course);
+        this.bonusLimit = bonusLimit;
+    }
+}
+
+class FacultyMember extends LibraryMember {
+
+    private String department;
+
+    public FacultyMember(
+            String memberId,
+            int borrowLimit,
+            String department) {
+
+        super(memberId, borrowLimit);
+        this.department = department;
+    }
+}
+
+public class Main {
+
+    static String classifyGeneration(LibraryMember member) {
+
+        if (member instanceof HonorsStudentMember) {
+            return "Honors Student Member";
+        }
+
+        if (member instanceof StudentMember) {
+            return "Student Member";
+        }
+
+        if (member instanceof FacultyMember) {
+            return "Faculty Member";
+        }
+
+        if (member instanceof LibraryMember) {
+            return "Library Member";
+        }
+
+        return "Unknown";
+    }
+
+    static int getTotalBooksBorrowed(LibraryMember[] members) {
+
+        int total = 0;
+
+        for (LibraryMember member : members) {
+            total += member.getBooksBorrowed();
+        }
+
+        return total;
+    }
+
+    public static void main(String[] args) {
+
+        LibraryMember member =
+                new LibraryMember("LIB101", 3);
+
+        StudentMember student =
+                new StudentMember(
+                        "STU101",
+                        4,
+                        "Computer Science"
+                );
+
+        HonorsStudentMember honors =
+                new HonorsStudentMember(
+                        "HON101",
+                        5,
+                        "Data Science",
+                        2
+                );
+
+        FacultyMember faculty =
+                new FacultyMember(
+                        "FAC101",
+                        6,
+                        "Computer Science"
+                );
+
+        member.borrowBook();
+
+        student.borrowBook();
+        student.borrowBook();
+
+        honors.borrowBook();
+        honors.borrowBook();
+        honors.borrowBook();
+
+        faculty.borrowBook();
+        faculty.borrowBook();
+        faculty.borrowBook();
+        faculty.borrowBook();
+
+        LibraryMember[] members = {
+            member,
+            student,
+            honors,
+            faculty
+        };
+
+        System.out.println(classifyGeneration(member));
+        System.out.println(classifyGeneration(student));
+        System.out.println(classifyGeneration(honors));
+        System.out.println(classifyGeneration(faculty));
+
+        System.out.println(
+            "Total Books Borrowed: " +
+            getTotalBooksBorrowed(members)
+        );
+    }
+}

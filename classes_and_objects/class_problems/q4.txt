@@ -1,0 +1,156 @@
+class LibraryMember {
+
+    private String memberId;
+    private int borrowLimit;
+    private int booksBorrowed;
+
+    public LibraryMember(String memberId, int borrowLimit) {
+        if (memberId == null ||
+            memberId.trim().isEmpty() ||
+            memberId.trim().length() < 4) {
+            throw new IllegalArgumentException("Invalid memberId");
+        }
+
+        this.memberId = memberId;
+        this.borrowLimit = borrowLimit;
+        this.booksBorrowed = 0;
+    }
+
+    public void borrowBook() {
+        if (booksBorrowed < borrowLimit) {
+            booksBorrowed++;
+        }
+    }
+
+    public int getBooksBorrowed() {
+        return booksBorrowed;
+    }
+
+    public String getMemberId() {
+        return memberId;
+    }
+
+    public void displayInfo(StringBuilder sb) {
+        sb.append("Member ID: ")
+          .append(memberId)
+          .append(" | Borrowed: ")
+          .append(booksBorrowed);
+    }
+}
+
+class StudentMember extends LibraryMember {
+
+    private String course;
+
+    public StudentMember(
+            String memberId,
+            int borrowLimit,
+            String course) {
+
+        super(memberId, borrowLimit);
+        this.course = course;
+    }
+
+    public String getCourse() {
+        return course;
+    }
+
+    @Override
+    public void displayInfo(StringBuilder sb) {
+        super.displayInfo(sb);
+        sb.append(" | Course: ")
+          .append(course);
+    }
+}
+
+class HonorsStudentMember extends StudentMember {
+
+    private int bonusLimit;
+
+    public HonorsStudentMember(
+            String memberId,
+            int borrowLimit,
+            String course,
+            int bonusLimit) {
+
+        super(memberId, borrowLimit, course);
+        this.bonusLimit = bonusLimit;
+    }
+}
+
+class FacultyMember extends LibraryMember {
+
+    private String department;
+
+    public FacultyMember(
+            String memberId,
+            int borrowLimit,
+            String department) {
+
+        super(memberId, borrowLimit);
+        this.department = department;
+    }
+
+    @Override
+    public void displayInfo(StringBuilder sb) {
+        super.displayInfo(sb);
+        sb.append(" | Department: ")
+          .append(department);
+    }
+}
+
+public class Main {
+
+    static String batchPrint(LibraryMember[] members) {
+
+        StringBuilder report = new StringBuilder();
+
+        for (LibraryMember member : members) {
+
+            member.displayInfo(report);
+
+            if (member instanceof StudentMember) {
+                StudentMember student =
+                        (StudentMember) member;
+
+                report.append(" | Student Course: ")
+                      .append(student.getCourse());
+            }
+
+            report.append("\n");
+        }
+
+        return report.toString();
+    }
+
+    public static void main(String[] args) {
+
+        LibraryMember[] members = {
+            new LibraryMember("LIB101", 5),
+            new StudentMember(
+                "STU101",
+                4,
+                "Computer Science"
+            ),
+            new HonorsStudentMember(
+                "HON101",
+                6,
+                "Data Science",
+                2
+            ),
+            new FacultyMember(
+                "FAC101",
+                8,
+                "Computer Science"
+            )
+        };
+
+        members[0].borrowBook();
+        members[1].borrowBook();
+        members[1].borrowBook();
+        members[2].borrowBook();
+        members[3].borrowBook();
+
+        System.out.println(batchPrint(members));
+    }
+}
