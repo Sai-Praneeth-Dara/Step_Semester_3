@@ -1,0 +1,94 @@
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+class MovieTicket {
+
+    private String seatNumber;
+    String screenId;
+    protected double ticketPrice;
+    public String movieTitle;
+}
+
+public class AccessChecker {
+
+    enum AccessContext {
+        SAME_CLASS,
+        SAME_PACKAGE,
+        DIFFERENT_PACKAGE,
+        SUBCLASS_DIFFERENT_PACKAGE_OWN_TYPE,
+        SUBCLASS_DIFFERENT_PACKAGE_PARENT_TYPE
+    }
+
+    static String classifyAccess(Field field, AccessContext context) {
+
+        int modifiers = field.getModifiers();
+
+        if (Modifier.isPublic(modifiers)) {
+            return "ALLOWED";
+        }
+
+        if (Modifier.isPrivate(modifiers)) {
+            return context == AccessContext.SAME_CLASS
+                    ? "ALLOWED"
+                    : "DENIED";
+        }
+
+        if (Modifier.isProtected(modifiers)) {
+
+            if (context == AccessContext.SAME_CLASS ||
+                context == AccessContext.SAME_PACKAGE ||
+                context == AccessContext.SUBCLASS_DIFFERENT_PACKAGE_OWN_TYPE) {
+                return "ALLOWED";
+            }
+
+            return "DENIED";
+        }
+
+        // Default / package-private
+        if (context == AccessContext.SAME_CLASS ||
+            context == AccessContext.SAME_PACKAGE) {
+            return "ALLOWED";
+        }
+
+        return "DENIED";
+    }
+
+    public static void main(String[] args) {
+
+        String[] fields = {
+            "seatNumber",
+            "screenId",
+            "ticketPrice",
+            "movieTitle"
+        };
+
+        AccessContext[] contexts = {
+            AccessContext.SAME_CLASS,
+            AccessContext.SAME_PACKAGE,
+            AccessContext.DIFFERENT_PACKAGE,
+            AccessContext.SUBCLASS_DIFFERENT_PACKAGE_OWN_TYPE,
+            AccessContext.SUBCLASS_DIFFERENT_PACKAGE_PARENT_TYPE
+        };
+
+        for (String fieldName : fields) {
+
+            try {
+                Field field =
+                    MovieTicket.class.getDeclaredField(fieldName);
+
+                System.out.println("\n" + fieldName);
+
+                for (AccessContext context : contexts) {
+
+                    System.out.println(
+                        context + " -> " +
+                        classifyAccess(field, context)
+                    );
+                }
+
+            } catch (NoSuchFieldException e) {
+                System.out.println("Field not found: " + fieldName);
+            }
+        }
+    }
+}

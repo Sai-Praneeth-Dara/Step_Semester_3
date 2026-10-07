@@ -1,0 +1,87 @@
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+class MovieTicket {
+
+    private String seatNumber;
+    String screenId;
+    protected double ticketPrice;
+    public String movieTitle;
+}
+
+public class AccessChecker {
+
+    enum AccessContext {
+        SAME_CLASS,
+        SAME_PACKAGE,
+        DIFFERENT_PACKAGE
+    }
+
+    static String classifyAccess(Field field, AccessContext context) {
+
+        int modifiers = field.getModifiers();
+
+        // public
+        if (Modifier.isPublic(modifiers)) {
+            return "ALLOWED";
+        }
+
+        // private
+        if (Modifier.isPrivate(modifiers)) {
+            return context == AccessContext.SAME_CLASS
+                    ? "ALLOWED"
+                    : "DENIED";
+        }
+
+        // protected
+        if (Modifier.isProtected(modifiers)) {
+            return (context == AccessContext.SAME_CLASS ||
+                    context == AccessContext.SAME_PACKAGE)
+                    ? "ALLOWED"
+                    : "DENIED";
+        }
+
+        // default / package-private
+        return (context == AccessContext.SAME_CLASS ||
+                context == AccessContext.SAME_PACKAGE)
+                ? "ALLOWED"
+                : "DENIED";
+    }
+
+    public static void main(String[] args) {
+
+        String[] fields = {
+            "seatNumber",
+            "screenId",
+            "ticketPrice",
+            "movieTitle"
+        };
+
+        AccessContext[] contexts = {
+            AccessContext.SAME_CLASS,
+            AccessContext.SAME_PACKAGE,
+            AccessContext.DIFFERENT_PACKAGE
+        };
+
+        for (String fieldName : fields) {
+
+            try {
+                Field field =
+                    MovieTicket.class.getDeclaredField(fieldName);
+
+                System.out.println("\n" + fieldName);
+
+                for (AccessContext context : contexts) {
+
+                    System.out.println(
+                        context + " -> " +
+                        classifyAccess(field, context)
+                    );
+                }
+
+            } catch (NoSuchFieldException e) {
+                System.out.println("Field not found: " + fieldName);
+            }
+        }
+    }
+}

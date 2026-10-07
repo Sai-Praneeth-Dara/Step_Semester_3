@@ -1,0 +1,152 @@
+import java.util.Arrays;
+
+final class BookingReceipt {
+
+    private final String customerName;
+    private final String bookingId;
+    private final String[] seatNumbers;
+
+    public BookingReceipt(
+            String customerName,
+            String bookingId,
+            String[] seatNumbers) {
+
+        this.customerName = customerName;
+        this.bookingId = bookingId;
+
+        // Defensive copy
+        this.seatNumbers = Arrays.copyOf(
+                seatNumbers,
+                seatNumbers.length
+        );
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public String getBookingId() {
+        return bookingId;
+    }
+
+    // Defensive copy
+    public String[] getSeatNumbers() {
+        return Arrays.copyOf(
+                seatNumbers,
+                seatNumbers.length
+        );
+    }
+
+    // Returns a new receipt
+    public BookingReceipt withCorrectedSeat(
+            int index,
+            String newSeat) {
+
+        String[] updatedSeats =
+                Arrays.copyOf(seatNumbers, seatNumbers.length);
+
+        if (index >= 0 && index < updatedSeats.length) {
+            updatedSeats[index] = newSeat;
+        }
+
+        return new BookingReceipt(
+                customerName,
+                bookingId,
+                updatedSeats
+        );
+    }
+
+    public void settle() {
+        System.out.println(
+                "Regular booking settled: " +
+                bookingId
+        );
+    }
+}
+
+class GroupBookingReceipt extends BookingReceipt {
+
+    private final int groupSize;
+
+    public GroupBookingReceipt(
+            String customerName,
+            String bookingId,
+            String[] seatNumbers,
+            int groupSize) {
+
+        super(customerName, bookingId, seatNumbers);
+        this.groupSize = groupSize;
+    }
+
+    public void settleGroupBooking() {
+        System.out.println(
+                "Group booking settled: " +
+                getBookingId() +
+                " | Group Size: " +
+                groupSize
+        );
+    }
+}
+
+class NightlySettlement {
+
+    public static void process(BookingReceipt[] receipts) {
+
+        for (BookingReceipt receipt : receipts) {
+
+            if (receipt == null) {
+                System.out.println("Skipped null booking entry.");
+                continue;
+            }
+
+            if (receipt instanceof GroupBookingReceipt) {
+
+                GroupBookingReceipt groupReceipt =
+                        (GroupBookingReceipt) receipt;
+
+                groupReceipt.settleGroupBooking();
+
+            } else {
+
+                receipt.settle();
+            }
+        }
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        String[] seats = {"A1", "A2"};
+
+        BookingReceipt regular =
+                new BookingReceipt(
+                        "Suhail",
+                        "B001",
+                        seats
+                );
+
+        GroupBookingReceipt group =
+                new GroupBookingReceipt(
+                        "Rahul",
+                        "B002",
+                        new String[]{"B1", "B2", "B3"},
+                        3
+                );
+
+        // Corrected receipt is a new object
+        BookingReceipt corrected =
+                regular.withCorrectedSeat(0, "A5");
+
+        BookingReceipt[] nightlyBatch = {
+                regular,
+                null,
+                group,
+                corrected,
+                null
+        };
+
+        NightlySettlement.process(nightlyBatch);
+    }
+}
