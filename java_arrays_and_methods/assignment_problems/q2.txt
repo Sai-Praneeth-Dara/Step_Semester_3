@@ -1,0 +1,138 @@
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+class LibraryMember {
+
+    private String membershipPin;
+    String branchCode;                 // default
+    protected double finesOwed;       // protected
+    public String displayName;         // public
+}
+
+public class AccessChecker {
+
+    enum AccessContext {
+        SAME_CLASS,
+        SAME_PACKAGE,
+        SUBCLASS_DIFFERENT_PACKAGE_OWN_TYPE,
+        SUBCLASS_DIFFERENT_PACKAGE_PARENT_TYPE,
+        UNRELATED_DIFFERENT_PACKAGE
+    }
+
+    // Checks one access attempt
+    static boolean classifyAccess(Field field, AccessContext context) {
+
+        int modifiers = field.getModifiers();
+
+        // public -> always accessible
+        if (Modifier.isPublic(modifiers)) {
+            return true;
+        }
+
+        // private -> never accessible from these external contexts
+        if (Modifier.isPrivate(modifiers)) {
+            return context == AccessContext.SAME_CLASS;
+        }
+
+        // default / package-private
+        if (!Modifier.isProtected(modifiers)) {
+            return context == AccessContext.SAME_CLASS
+                    || context == AccessContext.SAME_PACKAGE;
+        }
+
+        // protected
+        if (context == AccessContext.SAME_CLASS
+                || context == AccessContext.SAME_PACKAGE) {
+            return true;
+        }
+
+        // Special protected rule
+        if (context == AccessContext.SUBCLASS_DIFFERENT_PACKAGE_OWN_TYPE) {
+            return true;
+        }
+
+        if (context == AccessContext.SUBCLASS_DIFFERENT_PACKAGE_PARENT_TYPE) {
+            return false;
+        }
+
+        return false;
+    }
+
+    // Represents one access attempt
+    static class AccessAttempt {
+        String fieldName;
+        AccessContext context;
+
+        AccessAttempt(String fieldName, AccessContext context) {
+            this.fieldName = fieldName;
+            this.context = context;
+        }
+    }
+
+    // Finds the FIRST denied attempt
+    static AccessAttempt firstDeniedAttempt(AccessAttempt[] attempts) {
+
+        // Strictly process from first to last
+        for (AccessAttempt attempt : attempts) {
+
+            try {
+                Field field =
+                        LibraryMember.class.getDeclaredField(
+                                attempt.fieldName
+                        );
+
+                boolean allowed =
+                        classifyAccess(field, attempt.context);
+
+                if (!allowed) {
+                    return attempt;
+                }
+
+            } catch (NoSuchFieldException e) {
+                System.out.println(
+                        "Field not found: " + attempt.fieldName
+                );
+            }
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) {
+
+        AccessAttempt[] attempts = {
+
+            new AccessAttempt(
+                    "displayName",
+                    AccessContext.UNRELATED_DIFFERENT_PACKAGE
+            ),
+
+            new AccessAttempt(
+                    "finesOwed",
+                    AccessContext.SUBCLASS_DIFFERENT_PACKAGE_OWN_TYPE
+            ),
+
+            new AccessAttempt(
+                    "finesOwed",
+                    AccessContext.SUBCLASS_DIFFERENT_PACKAGE_PARENT_TYPE
+            ),
+
+            new AccessAttempt(
+                    "membershipPin",
+                    AccessContext.UNRELATED_DIFFERENT_PACKAGE
+            )
+        };
+
+        AccessAttempt denied = firstDeniedAttempt(attempts);
+
+        if (denied != null) {
+
+            System.out.println("First denied attempt:");
+            System.out.println("Field: " + denied.fieldName);
+            System.out.println("Context: " + denied.context);
+
+        } else {
+            System.out.println("No denied attempts.");
+        }
+    }
+}

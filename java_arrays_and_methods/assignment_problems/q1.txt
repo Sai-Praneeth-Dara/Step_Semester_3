@@ -1,0 +1,135 @@
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+class LibraryMember {
+
+    // Accessible only inside LibraryMember
+    private String membershipPin;
+
+    // Package-private: accessible only within the same package
+    String branchCode;
+
+    // Protected: same package + subclasses
+    protected double finesOwed;
+
+    // Accessible from anywhere
+    public String displayName;
+
+    LibraryMember(String membershipPin, String branchCode,
+                  double finesOwed, String displayName) {
+        this.membershipPin = membershipPin;
+        this.branchCode = branchCode;
+        this.finesOwed = finesOwed;
+        this.displayName = displayName;
+    }
+}
+
+public class Main {
+
+    static String classifyAccess(Field field, Class<?> requester) {
+
+        int modifiers = field.getModifiers();
+        Class<?> owner = field.getDeclaringClass();
+
+        // 1. Public -> accessible everywhere
+        if (Modifier.isPublic(modifiers)) {
+            return "ALLOWED";
+        }
+
+        // 2. Private -> accessible only inside declaring class
+        if (Modifier.isPrivate(modifiers)) {
+            return requester.equals(owner) ? "ALLOWED" : "REJECTED";
+        }
+
+        // 3. Package-private -> accessible only in same package
+        if (!Modifier.isProtected(modifiers)) {
+            Package ownerPackage = owner.getPackage();
+            Package requesterPackage = requester.getPackage();
+
+            String ownerPackageName =
+                    ownerPackage == null ? "" : ownerPackage.getName();
+
+            String requesterPackageName =
+                    requesterPackage == null ? "" : requesterPackage.getName();
+
+            return ownerPackageName.equals(requesterPackageName)
+                    ? "ALLOWED"
+                    : "REJECTED";
+        }
+
+        // 4. Protected -> same package OR subclass
+        Package ownerPackage = owner.getPackage();
+        Package requesterPackage = requester.getPackage();
+
+        String ownerPackageName =
+                ownerPackage == null ? "" : ownerPackage.getName();
+
+        String requesterPackageName =
+                requesterPackage == null ? "" : requesterPackage.getName();
+
+        boolean samePackage =
+                ownerPackageName.equals(requesterPackageName);
+
+        boolean subclass =
+                owner.isAssignableFrom(requester);
+
+        return (samePackage || subclass) ? "ALLOWED" : "REJECTED";
+    }
+
+    public static void main(String[] args) {
+
+        Class<?> memberClass = LibraryMember.class;
+
+        // Different requester classes for demonstration
+        Class<?> sameClass = LibraryMember.class;
+        Class<?> otherClass = Main.class;
+
+        String[] fieldNames = {
+            "membershipPin",
+            "branchCode",
+            "finesOwed",
+            "displayName"
+        };
+
+        System.out.println("LibraryMember Access Report");
+        System.out.println("---------------------------");
+
+        for (String fieldName : fieldNames) {
+
+            try {
+                Field field = memberClass.getDeclaredField(fieldName);
+
+                String result = classifyAccess(field, otherClass);
+
+                System.out.println(
+                    fieldName + " -> " + result
+                );
+
+            } catch (NoSuchFieldException e) {
+                System.out.println(
+                    fieldName + " -> Field not found"
+                );
+            }
+        }
+
+        System.out.println("\nAccess from LibraryMember itself:");
+
+        for (String fieldName : fieldNames) {
+
+            try {
+                Field field = memberClass.getDeclaredField(fieldName);
+
+                String result = classifyAccess(field, sameClass);
+
+                System.out.println(
+                    fieldName + " -> " + result
+                );
+
+            } catch (NoSuchFieldException e) {
+                System.out.println(
+                    fieldName + " -> Field not found"
+                );
+            }
+        }
+    }
+}

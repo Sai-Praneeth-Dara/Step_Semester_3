@@ -1,0 +1,74 @@
+class BookInventory {
+
+    private int copiesTotal;
+    private int copiesAvailable;
+
+    // Constructor
+    BookInventory(int copiesTotal) {
+        this.copiesTotal = copiesTotal;
+        this.copiesAvailable = copiesTotal;
+    }
+
+    // Check out one copy
+    void checkOut() {
+        if (copiesAvailable > 0) {
+            copiesAvailable--;
+        }
+        // Invalid checkout is silently rejected
+    }
+
+    // Check in one copy
+    void checkIn() {
+        if (copiesAvailable < copiesTotal) {
+            copiesAvailable++;
+        }
+        // Invalid check-in is silently rejected
+    }
+
+    // Getter for available copies
+    int getCopiesAvailable() {
+        return copiesAvailable;
+    }
+
+    // Getter for total copies
+    int getCopiesTotal() {
+        return copiesTotal;
+    }
+
+    // Display inventory
+    void printInventory() {
+        System.out.println(
+            "Total Copies: " + copiesTotal +
+            " | Available Copies: " + copiesAvailable
+        );
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        BookInventory book = new BookInventory(3);
+
+        System.out.println("Initial Inventory:");
+        book.printInventory();
+
+        System.out.println("\nChecking out copies:");
+
+        book.checkOut();
+        book.checkOut();
+        book.checkOut();
+        book.checkOut();   // Rejected silently
+
+        book.printInventory();
+
+        System.out.println("\nChecking in copies:");
+
+        book.checkIn();
+        book.checkIn();
+        book.checkIn();
+        book.checkIn();   // Rejected silently
+
+        book.printInventory();
+    }
+}

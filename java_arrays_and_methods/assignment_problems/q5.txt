@@ -1,0 +1,172 @@
+import java.util.Arrays;
+
+final class LoanReceipt {
+
+    private final String memberName;
+    private final String loanDate;
+    private final String[] bookIds;
+
+    public LoanReceipt(String memberName, String loanDate, String[] bookIds) {
+        this.memberName = memberName;
+        this.loanDate = loanDate;
+
+        // Defensive copy while receiving the array
+        this.bookIds = Arrays.copyOf(bookIds, bookIds.length);
+    }
+
+    public String getMemberName() {
+        return memberName;
+    }
+
+    public String getLoanDate() {
+        return loanDate;
+    }
+
+    public String[] getBookIds() {
+        // Defensive copy while returning the array
+        return Arrays.copyOf(bookIds, bookIds.length);
+    }
+
+    // Creates a NEW receipt with corrected book ID
+    public LoanReceipt withCorrectedBookId(int index, String newBookId) {
+
+        String[] correctedBooks = Arrays.copyOf(bookIds, bookIds.length);
+
+        if (index >= 0 && index < correctedBooks.length) {
+            correctedBooks[index] = newBookId;
+        }
+
+        return new LoanReceipt(
+            memberName,
+            loanDate,
+            correctedBooks
+        );
+    }
+
+    public void printReceipt() {
+        System.out.println(
+            "Member: " + memberName +
+            " | Date: " + loanDate +
+            " | Books: " + Arrays.toString(bookIds)
+        );
+    }
+}
+
+
+// Special type of receipt for books that never leave the library
+class ReferenceOnlyLoanReceipt extends LoanReceipt {
+
+    public ReferenceOnlyLoanReceipt(
+            String memberName,
+            String loanDate,
+            String[] bookIds) {
+
+        super(memberName, loanDate, bookIds);
+    }
+
+    public void settleReferenceOnly() {
+        System.out.println(
+            "Reference-only receipt settled: " +
+            getMemberName()
+        );
+    }
+}
+
+
+class CirculationLedger {
+
+    static String branchCode;
+
+    // One-time class-level setup
+    static {
+        branchCode = "PTL-001";
+        System.out.println(
+            "Circulation Ledger initialized for branch: " + branchCode
+        );
+    }
+
+    public static void processNightlyBatch(LoanReceipt[] receipts) {
+
+        System.out.println("\nNightly Circulation Processing:");
+
+        for (LoanReceipt receipt : receipts) {
+
+            // Handle null scanner entries safely
+            if (receipt == null) {
+                System.out.println(
+                    "Skipped null scanner entry."
+                );
+                continue;
+            }
+
+            if (receipt instanceof ReferenceOnlyLoanReceipt) {
+
+                ReferenceOnlyLoanReceipt referenceReceipt =
+                    (ReferenceOnlyLoanReceipt) receipt;
+
+                referenceReceipt.settleReferenceOnly();
+
+            } else {
+
+                System.out.println(
+                    "Regular loan settled: " +
+                    receipt.getMemberName()
+                );
+            }
+        }
+    }
+}
+
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        String[] books1 = {"B101", "B102"};
+        String[] books2 = {"B201", "B202"};
+
+        LoanReceipt regularReceipt =
+            new LoanReceipt(
+                "Suhail",
+                "2026-10-07",
+                books1
+            );
+
+        ReferenceOnlyLoanReceipt referenceReceipt =
+            new ReferenceOnlyLoanReceipt(
+                "Rahul",
+                "2026-10-07",
+                books2
+            );
+
+        // Original array mutation does NOT affect receipt
+        books1[0] = "HACKED";
+
+        System.out.println("Original Receipt:");
+        regularReceipt.printReceipt();
+
+        // Correcting receipt creates a NEW object
+        LoanReceipt correctedReceipt =
+            regularReceipt.withCorrectedBookId(
+                0,
+                "B999"
+            );
+
+        System.out.println("\nCorrected Receipt:");
+        correctedReceipt.printReceipt();
+
+        System.out.println("\nOriginal Receipt After Correction:");
+        regularReceipt.printReceipt();
+
+        // Scanner feed containing a null entry
+        LoanReceipt[] nightlyBatch = {
+            regularReceipt,
+            null,
+            referenceReceipt,
+            correctedReceipt,
+            null
+        };
+
+        CirculationLedger.processNightlyBatch(nightlyBatch);
+    }
+}
