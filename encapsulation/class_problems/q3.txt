@@ -1,0 +1,47 @@
+abstract class Instrument {
+
+    public Instrument() {
+    }
+
+    public abstract String play();
+}
+
+class StringInstrument extends Instrument {
+
+    public StringInstrument() {
+        super();
+    }
+
+    @Override
+    public String play() {
+        return superPlay() +
+               " String instrument produces a melodic sound.";
+    }
+
+    private String superPlay() {
+        return "Instrument is being played.";
+    }
+}
+
+class Violin extends StringInstrument {
+
+    public Violin() {
+        super();
+    }
+
+    @Override
+    public String play() {
+        return super.play() +
+               " Violin adds a warm-up step before performance.";
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Instrument instrument = new Violin();
+
+        System.out.println(instrument.play());
+    }
+}

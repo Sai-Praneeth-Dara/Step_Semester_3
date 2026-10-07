@@ -1,0 +1,67 @@
+abstract class DeliveryNote {
+
+    public DeliveryNote() {
+    }
+
+    public abstract String confirmDelivery();
+
+    public String confirmDelivery(String signature) {
+        return confirmDelivery() + " | Signature: " + signature;
+    }
+}
+
+class ParcelNote extends DeliveryNote {
+
+    private String trackingId;
+
+    public ParcelNote(String trackingId) {
+        this.trackingId = trackingId;
+    }
+
+    @Override
+    public String confirmDelivery() {
+        return "Parcel " + trackingId + " delivered successfully.";
+    }
+}
+
+class LetterNote extends DeliveryNote {
+
+    private String trackingId;
+
+    public LetterNote(String trackingId) {
+        this.trackingId = trackingId;
+    }
+
+    @Override
+    public String confirmDelivery() {
+        return "Letter " + trackingId + " delivered successfully.";
+    }
+}
+
+public class Main {
+
+    static void logAll(DeliveryNote[] notes) {
+
+        for (DeliveryNote note : notes) {
+            System.out.println(note.confirmDelivery());
+        }
+    }
+
+    public static void main(String[] args) {
+
+        DeliveryNote[] notes = {
+            new ParcelNote("P101"),
+            new LetterNote("L202"),
+            new ParcelNote("P303"),
+            new LetterNote("L404")
+        };
+
+        logAll(notes);
+
+        DeliveryNote parcel = new ParcelNote("P505");
+
+        System.out.println(
+            parcel.confirmDelivery("Suhail")
+        );
+    }
+}

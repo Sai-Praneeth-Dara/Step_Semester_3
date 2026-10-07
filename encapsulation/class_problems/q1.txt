@@ -1,0 +1,65 @@
+abstract class Toy {
+
+    private static int nextId = 1;
+
+    private final String toyId;
+
+    public Toy() {
+        this.toyId = "TOY" + nextId++;
+    }
+
+    public abstract String makeSound();
+
+    public String getToyId() {
+        return toyId;
+    }
+}
+
+class ToyCar extends Toy {
+
+    private String name;
+
+    public ToyCar(String name) {
+        super();
+        this.name = name;
+    }
+
+    @Override
+    public String makeSound() {
+        return "Toy Car " + name + ": Vroom Vroom!";
+    }
+}
+
+class ToyRobot extends Toy {
+
+    private String name;
+
+    public ToyRobot(String name) {
+        super();
+        this.name = name;
+    }
+
+    @Override
+    public String makeSound() {
+        return "Toy Robot " + name + ": Beep Boop!";
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        ToyCar car = new ToyCar("Speedster");
+        ToyRobot robot = new ToyRobot("Robo");
+
+        System.out.println(
+            car.getToyId() + " - " + car.makeSound()
+        );
+
+        System.out.println(
+            robot.getToyId() + " - " + robot.makeSound()
+        );
+
+        // Toy toy = new Toy(); // ❌ Cannot compile
+    }
+}
