@@ -1,0 +1,216 @@
+class GymMember {
+
+    private static int nextMembershipNumber = 1;
+    private static int membersEnrolled = 0;
+
+    private final int membershipNumber;
+
+    private int monthlyFee;
+    private int feesPaid;
+    private int sessionsAttended;
+    private String lastPaymentMode;
+
+    public GymMember(int monthlyFee) {
+        this.monthlyFee = monthlyFee;
+        this.feesPaid = 0;
+        this.sessionsAttended = 0;
+
+        this.membershipNumber = nextMembershipNumber++;
+        membersEnrolled++;
+    }
+
+    public void attendSession() {
+        sessionsAttended++;
+    }
+
+    public void payFee(int amount) {
+        if (amount > 0) {
+            feesPaid += amount;
+        }
+    }
+
+    public void payFee(int amount, String mode) {
+        payFee(amount);
+        this.lastPaymentMode = mode;
+    }
+
+    public int getFeesPaid() {
+        return feesPaid;
+    }
+
+    public int getMembershipNumber() {
+        return membershipNumber;
+    }
+
+    public int getSessionsAttended() {
+        return sessionsAttended;
+    }
+
+    public static boolean isValidReferralCode(String code) {
+
+        if (code == null || code.length() != 4) {
+            return false;
+        }
+
+        if (code.charAt(0) != 'G') {
+            return false;
+        }
+
+        if (!Character.isDigit(code.charAt(1))) {
+            return false;
+        }
+
+        if (!Character.isDigit(code.charAt(2))) {
+            return false;
+        }
+
+        if (!Character.isUpperCase(code.charAt(3))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static int getMembersEnrolled() {
+        return membersEnrolled;
+    }
+}
+
+class PremiumMember extends GymMember {
+
+    private String trainerName;
+
+    public PremiumMember(int monthlyFee, String trainerName) {
+        super(monthlyFee);
+        this.trainerName = trainerName;
+    }
+}
+
+class EliteMember extends PremiumMember {
+
+    private String lockerNumber;
+
+    public EliteMember(
+            int monthlyFee,
+            String trainerName,
+            String lockerNumber) {
+
+        super(monthlyFee, trainerName);
+        this.lockerNumber = lockerNumber;
+    }
+}
+
+class GroupClassMember extends GymMember {
+
+    private String className;
+
+    public GroupClassMember(
+            int monthlyFee,
+            String className) {
+
+        super(monthlyFee);
+        this.className = className;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+}
+
+public class Main {
+
+    static String processWeeklyCheckIn(GymMember[] members) {
+
+        StringBuilder result = new StringBuilder();
+
+        for (GymMember member : members) {
+
+            if (member == null) {
+                result.append("Skipped missing entry\n");
+                continue;
+            }
+
+            if (member instanceof GroupClassMember) {
+
+                GroupClassMember group =
+                        (GroupClassMember) member;
+
+                result.append("Group Class Member ")
+                      .append(group.getMembershipNumber())
+                      .append(" | Class: ")
+                      .append(group.getClassName())
+                      .append(" | Sessions: ")
+                      .append(group.getSessionsAttended())
+                      .append("\n");
+
+            } else {
+
+                result.append("Regular Member ")
+                      .append(member.getMembershipNumber())
+                      .append(" | Sessions: ")
+                      .append(member.getSessionsAttended())
+                      .append("\n");
+            }
+        }
+
+        return result.toString();
+    }
+
+    public static void main(String[] args) {
+
+        GymMember member =
+                new GymMember(2000);
+
+        PremiumMember premium =
+                new PremiumMember(
+                        4000,
+                        "Rahul"
+                );
+
+        GroupClassMember group =
+                new GroupClassMember(
+                        3000,
+                        "Yoga"
+                );
+
+        member.attendSession();
+
+        premium.attendSession();
+        premium.attendSession();
+
+        group.attendSession();
+        group.attendSession();
+        group.attendSession();
+
+        member.payFee(2000);
+        premium.payFee(4000, "UPI");
+        group.payFee(3000, "Card");
+
+        GymMember[] members = {
+            member,
+            null,
+            premium,
+            group,
+            null
+        };
+
+        System.out.println(
+                processWeeklyCheckIn(members)
+        );
+
+        System.out.println(
+                "Members Enrolled: " +
+                GymMember.getMembersEnrolled()
+        );
+
+        System.out.println(
+                "Referral G45B: " +
+                GymMember.isValidReferralCode("G45B")
+        );
+
+        System.out.println(
+                "Referral G4AB: " +
+                GymMember.isValidReferralCode("G4AB")
+        );
+    }
+}

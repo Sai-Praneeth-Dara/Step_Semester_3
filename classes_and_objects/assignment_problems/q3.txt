@@ -1,0 +1,158 @@
+import java.util.Arrays;
+
+class GymMember {
+
+    private String memberId;
+    private int monthlyFee;
+    private int sessionsAttended;
+
+    private int[] lateFeeHistory;
+    private int totalLateFees;
+
+    public GymMember(String memberId, int monthlyFee) {
+
+        if (memberId == null ||
+            memberId.trim().isEmpty() ||
+            memberId.trim().length() < 4) {
+
+            throw new IllegalArgumentException("Invalid memberId");
+        }
+
+        this.memberId = memberId;
+        this.monthlyFee = monthlyFee;
+        this.sessionsAttended = 0;
+        this.lateFeeHistory = new int[0];
+        this.totalLateFees = 0;
+    }
+
+    public void attendSession() {
+        sessionsAttended++;
+    }
+
+    public int getSessionsAttended() {
+        return sessionsAttended;
+    }
+
+    protected void chargeLateFee(int amount) {
+
+        if (amount <= 0) {
+            return;
+        }
+
+        int[] newHistory =
+                Arrays.copyOf(
+                    lateFeeHistory,
+                    lateFeeHistory.length + 1
+                );
+
+        newHistory[newHistory.length - 1] = amount;
+
+        lateFeeHistory = newHistory;
+        totalLateFees += amount;
+    }
+
+    public int[] getLateFeeHistory() {
+        return Arrays.copyOf(
+            lateFeeHistory,
+            lateFeeHistory.length
+        );
+    }
+
+    public int getTotalLateFees() {
+        return totalLateFees;
+    }
+}
+
+class PremiumMember extends GymMember {
+
+    private String trainerName;
+
+    public PremiumMember(
+            String memberId,
+            int monthlyFee,
+            String trainerName) {
+
+        super(memberId, monthlyFee);
+        this.trainerName = trainerName;
+    }
+
+    @Override
+    protected void chargeLateFee(int amount) {
+        super.chargeLateFee(amount / 2);
+    }
+
+    public void applyLateFee(int amount) {
+        chargeLateFee(amount);
+    }
+}
+
+class EliteMember extends PremiumMember {
+
+    private String lockerNumber;
+
+    public EliteMember(
+            String memberId,
+            int monthlyFee,
+            String trainerName,
+            String lockerNumber) {
+
+        super(memberId, monthlyFee, trainerName);
+        this.lockerNumber = lockerNumber;
+    }
+}
+
+class GroupClassMember extends GymMember {
+
+    private String className;
+
+    public GroupClassMember(
+            String memberId,
+            int monthlyFee,
+            String className) {
+
+        super(memberId, monthlyFee);
+        this.className = className;
+    }
+
+    public void applyLateFee(int amount) {
+        chargeLateFee(amount);
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        GymMember basic =
+                new GymMember("GYM101", 2000);
+
+        PremiumMember premium =
+                new PremiumMember(
+                    "PREM101",
+                    4000,
+                    "Rahul"
+                );
+
+        basic.chargeLateFee(100);
+
+        premium.applyLateFee(100);
+        premium.applyLateFee(80);
+
+        System.out.println(
+            "Basic Total Late Fees: " +
+            basic.getTotalLateFees()
+        );
+
+        System.out.println(
+            "Premium Total Late Fees: " +
+            premium.getTotalLateFees()
+        );
+
+        System.out.println(
+            "Premium Late Fee History: " +
+            Arrays.toString(
+                premium.getLateFeeHistory()
+            )
+        );
+    }
+}

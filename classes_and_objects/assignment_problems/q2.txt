@@ -1,0 +1,176 @@
+class GymMember {
+
+    private String memberId;
+    private int monthlyFee;
+    private int sessionsAttended;
+
+    public GymMember(String memberId, int monthlyFee) {
+        if (memberId == null ||
+            memberId.trim().isEmpty() ||
+            memberId.trim().length() < 4) {
+
+            throw new IllegalArgumentException("Invalid memberId");
+        }
+
+        this.memberId = memberId;
+        this.monthlyFee = monthlyFee;
+        this.sessionsAttended = 0;
+    }
+
+    public void attendSession() {
+        sessionsAttended++;
+    }
+
+    public int getSessionsAttended() {
+        return sessionsAttended;
+    }
+}
+
+class PremiumMember extends GymMember {
+
+    private String trainerName;
+
+    public PremiumMember(
+            String memberId,
+            int monthlyFee,
+            String trainerName) {
+
+        super(memberId, monthlyFee);
+        this.trainerName = trainerName;
+    }
+}
+
+class EliteMember extends PremiumMember {
+
+    private String lockerNumber;
+
+    public EliteMember(
+            String memberId,
+            int monthlyFee,
+            String trainerName,
+            String lockerNumber) {
+
+        super(memberId, monthlyFee, trainerName);
+        this.lockerNumber = lockerNumber;
+    }
+}
+
+class GroupClassMember extends GymMember {
+
+    private String className;
+
+    public GroupClassMember(
+            String memberId,
+            int monthlyFee,
+            String className) {
+
+        super(memberId, monthlyFee);
+        this.className = className;
+    }
+}
+
+public class Main {
+
+    static String classifyGeneration(GymMember member) {
+
+        if (member instanceof EliteMember) {
+            return "Elite Member";
+        }
+
+        if (member instanceof PremiumMember) {
+            return "Premium Member";
+        }
+
+        if (member instanceof GroupClassMember) {
+            return "Group Class Member";
+        }
+
+        if (member instanceof GymMember) {
+            return "Gym Member";
+        }
+
+        return "Unknown";
+    }
+
+    static int getTotalSessionsAttended(
+            GymMember[] members) {
+
+        int total = 0;
+
+        for (GymMember member : members) {
+            total += member.getSessionsAttended();
+        }
+
+        return total;
+    }
+
+    public static void main(String[] args) {
+
+        GymMember basic =
+                new GymMember("GYM101", 2000);
+
+        PremiumMember premium =
+                new PremiumMember(
+                    "PREM101",
+                    4000,
+                    "Rahul"
+                );
+
+        EliteMember elite =
+                new EliteMember(
+                    "ELITE101",
+                    6000,
+                    "Arjun",
+                    "L-101"
+                );
+
+        GroupClassMember group =
+                new GroupClassMember(
+                    "GROUP101",
+                    3000,
+                    "Yoga"
+                );
+
+        basic.attendSession();
+
+        premium.attendSession();
+        premium.attendSession();
+
+        elite.attendSession();
+        elite.attendSession();
+        elite.attendSession();
+
+        group.attendSession();
+        group.attendSession();
+        group.attendSession();
+        group.attendSession();
+
+        GymMember[] members = {
+            basic,
+            premium,
+            elite,
+            group
+        };
+
+        System.out.println(
+            classifyGeneration(basic)
+        );
+
+        System.out.println(
+            classifyGeneration(premium)
+        );
+
+        System.out.println(
+            classifyGeneration(elite)
+        );
+
+        System.out.println(
+            classifyGeneration(group)
+        );
+
+        System.out.println(
+            "Total Sessions Attended: " +
+            getTotalSessionsAttended(members)
+        );
+    }
+}
