@@ -1,0 +1,45 @@
+abstract class GardenTool {
+
+    public GardenTool() {
+    }
+
+    public abstract String use();
+}
+
+class CuttingTool extends GardenTool {
+
+    public CuttingTool() {
+        super();
+    }
+
+    @Override
+    public String use() {
+        return superUse() + " Cutting tool performs a general cutting action.";
+    }
+
+    private String superUse() {
+        return "Garden tool is ready.";
+    }
+}
+
+class Pruner extends CuttingTool {
+
+    public Pruner() {
+        super();
+    }
+
+    @Override
+    public String use() {
+        return super.use() + " Pruner adds an extra trimming step.";
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        GardenTool tool = new Pruner();
+
+        System.out.println(tool.use());
+    }
+}

@@ -1,0 +1,97 @@
+abstract class Drone {
+
+    public Drone() {
+    }
+
+    public abstract String fly();
+}
+
+interface Trackable {
+    String getLocation();
+}
+
+class DeliveryDrone extends Drone implements Trackable {
+
+    private String id;
+
+    public DeliveryDrone(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String fly() {
+        return "Delivery drone " + id + " is flying.";
+    }
+
+    @Override
+    public String getLocation() {
+        return "Delivery drone " + id + " location: Chennai";
+    }
+}
+
+class ScoutDrone extends Drone {
+
+    private String id;
+
+    public ScoutDrone(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String fly() {
+        return "Scout drone " + id + " is flying.";
+    }
+}
+
+class GroundRobot implements Trackable {
+
+    private String id;
+
+    public GroundRobot(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getLocation() {
+        return "Ground robot " + id + " location: Warehouse";
+    }
+}
+
+public class Main {
+
+    static String getLocationIfTrackable(Object o) {
+
+        if (o instanceof Trackable) {
+
+            Trackable trackable = (Trackable) o;
+
+            return trackable.getLocation();
+        }
+
+        return "Tracking isn't available.";
+    }
+
+    public static void main(String[] args) {
+
+        DeliveryDrone deliveryDrone =
+                new DeliveryDrone("DD-101");
+
+        ScoutDrone scoutDrone =
+                new ScoutDrone("SD-101");
+
+        GroundRobot groundRobot =
+                new GroundRobot("GR-101");
+
+        System.out.println(
+                getLocationIfTrackable(deliveryDrone)
+        );
+
+        System.out.println(
+                getLocationIfTrackable(scoutDrone)
+        );
+
+        System.out.println(
+                getLocationIfTrackable(groundRobot)
+        );
+    }
+}
