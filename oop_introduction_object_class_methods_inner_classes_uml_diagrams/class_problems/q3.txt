@@ -1,0 +1,46 @@
+class Student:
+    def __init__(self, roll_number, name):
+        self.roll_number = roll_number
+        self.name = name
+
+    def __eq__(self, other):
+        if not isinstance(other, Student):
+            return False
+        return self.roll_number == other.roll_number
+
+    def __hash__(self):
+        return hash(self.roll_number)
+
+
+members = set()
+operations = []
+
+while True:
+    try:
+        line = input().strip()
+        if not line:
+            break
+
+        parts = line.split()
+        operation = parts[0]
+        student = Student(parts[1], parts[2])
+
+        if operation == "ADD":
+            if student in members:
+                operations.append("duplicate rejected")
+            else:
+                members.add(student)
+                operations.append("Added")
+
+        elif operation == "CONTAINS":
+            operations.append(
+                "contains: " + str(student in members).lower()
+            )
+
+    except EOFError:
+        break
+
+for result in operations:
+    print(result)
+
+print("member count", len(members))

@@ -1,0 +1,59 @@
+class BankAccount:
+    def __init__(self, account_id, balance):
+        self.account_id = account_id
+        self.balance = balance
+
+    def withdraw(self, amount):
+        raise NotImplementedError
+
+
+class SavingsAccount(BankAccount):
+    def withdraw(self, amount):
+        if amount <= 0:
+            print(f"{self.account_id} rejected: invalid amount")
+        elif self.balance - amount < 1000:
+            print(f"{self.account_id} rejected: minimum balance 1000")
+        else:
+            self.balance -= amount
+            print(f"{self.account_id} balance {self.balance}")
+
+
+class CurrentAccount(BankAccount):
+    def withdraw(self, amount):
+        if amount <= 0:
+            print(f"{self.account_id} rejected: invalid amount")
+        elif self.balance - amount < -5000:
+            print(f"{self.account_id} rejected: overdraft limit 5000")
+        else:
+            self.balance -= amount
+            print(f"{self.account_id} balance {self.balance}")
+
+
+accounts = {}
+
+while True:
+    try:
+        line = input().strip()
+        if not line:
+            break
+
+        parts = line.split()
+        operation = parts[0]
+
+        if operation == "Savings":
+            accounts[parts[1]] = SavingsAccount(parts[1], int(parts[2]))
+
+        elif operation == "Current":
+            accounts[parts[1]] = CurrentAccount(parts[1], int(parts[2]))
+
+        elif operation == "WITHDRAW":
+            account_id = parts[1]
+            amount = int(parts[2])
+
+            if account_id not in accounts:
+                print("Account not found")
+            else:
+                accounts[account_id].withdraw(amount)
+
+    except EOFError:
+        break

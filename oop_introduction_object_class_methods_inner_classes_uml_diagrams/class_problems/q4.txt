@@ -1,0 +1,44 @@
+students = []
+marks_grid = []
+
+while True:
+    try:
+        line = input().strip()
+        if not line:
+            break
+
+        name, marks = line.split("[")
+        name = name.strip()
+        marks = list(map(int, marks.strip(" ]").split(",")))
+
+        students.append(name)
+        marks_grid.append(marks)
+
+    except EOFError:
+        break
+
+totals = []
+
+for i in range(len(students)):
+    total = sum(marks_grid[i])
+    totals.append(total)
+
+print("Totals", end=" ")
+for i in range(len(students)):
+    print(f"{students[i]} {totals[i]}", end="")
+    if i < len(students) - 1:
+        print(", ", end="")
+print()
+
+subject_averages = []
+
+for j in range(3):
+    total = 0
+    for i in range(len(students)):
+        total += marks_grid[i][j]
+    subject_averages.append(total / len(students))
+
+print("averages " + ", ".join(f"{avg:.2f}" for avg in subject_averages))
+
+topper_index = totals.index(max(totals))
+print(f"topper {students[topper_index]} ({totals[topper_index]})")
