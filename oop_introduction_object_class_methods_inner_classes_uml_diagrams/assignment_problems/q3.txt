@@ -1,0 +1,18 @@
+def mostPopular(orders):
+    counts = {}
+
+    for item in orders:
+        counts[item] = counts.get(item, 0) + 1
+
+    max_count = max(counts.values())
+
+    for item in orders:
+        if counts[item] == max_count:
+            return (item, max_count)
+
+
+orders = ["dosa", "idli", "vada", "dosa", "idli", "dosa", "tea"]
+print(mostPopular(orders))
+
+orders = ["tea", "coffee", "coffee", "tea"]
+print(mostPopular(orders))

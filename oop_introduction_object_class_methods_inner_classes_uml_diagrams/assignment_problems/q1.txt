@@ -1,0 +1,24 @@
+def findTopper(marks):
+    best_index = 0
+    best_total = -1
+
+    for i in range(len(marks)):
+        total = 0
+
+        for j in range(len(marks[i])):
+            total += marks[i][j]
+
+        if total > best_total:
+            best_total = total
+            best_index = i
+
+    return (best_index, best_total)
+
+
+marks = [
+    [78, 85, 90],
+    [88, 92, 79],
+    [65, 70, 95]
+]
+
+print(findTopper(marks))
