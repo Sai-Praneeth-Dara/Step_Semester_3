@@ -1,0 +1,189 @@
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+
+abstract class Employee {
+    protected String name;
+
+    public Employee(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public abstract boolean isLeaveAllowed(int days);
+}
+
+class FullTimeEmployee extends Employee {
+    public FullTimeEmployee(String name) {
+        super(name);
+    }
+
+    @Override
+    public boolean isLeaveAllowed(int days) {
+        return days > 0 && days <= 30;
+    }
+}
+
+class PartTimeEmployee extends Employee {
+    public PartTimeEmployee(String name) {
+        super(name);
+    }
+
+    @Override
+    public boolean isLeaveAllowed(int days) {
+        return days > 0 && days <= 10;
+    }
+}
+
+class Contractor extends Employee {
+    public Contractor(String name) {
+        super(name);
+    }
+
+    @Override
+    public boolean isLeaveAllowed(int days) {
+        return days > 0 && days <= 5;
+    }
+}
+
+class Reviewer {
+    private String name;
+
+    public Reviewer(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class LeaveRequest {
+    private Employee employee;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String status;
+    private Reviewer reviewer;
+
+    public LeaveRequest(Employee employee, LocalDate startDate, LocalDate endDate) {
+        if (employee == null || startDate == null || endDate == null
+                || endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("Invalid leave request.");
+        }
+
+        long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+
+        if (!employee.isLeaveAllowed((int) days)) {
+            throw new IllegalArgumentException("Leave duration exceeds the employee's policy.");
+        }
+
+        this.employee = employee;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = "Pending";
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public boolean review(Reviewer reviewer, String decision) {
+        if (!status.equals("Pending")) {
+            System.out.println("Cannot change leave request status from "
+                    + status + " to " + decision + ".");
+            return false;
+        }
+
+        if (reviewer == null || decision == null
+                || (!decision.equals("Approved") && !decision.equals("Rejected"))) {
+            System.out.println("Invalid review decision.");
+            return false;
+        }
+
+        this.reviewer = reviewer;
+        this.status = decision;
+
+        String action = decision.equals("Approved") ? "approved" : "rejected";
+
+        System.out.println(employee.getName() + "'s leave request ("
+                + startDate + "-" + endDate + ") " + action + ".");
+        System.out.println("Status: " + status);
+        return true;
+    }
+
+    public boolean changeStatus(String newStatus) {
+        if (!status.equals("Pending") || newStatus == null
+                || !newStatus.equals("Pending")) {
+            System.out.println("Cannot change leave request status from "
+                    + status + " to " + newStatus + ".");
+            return false;
+        }
+
+        return true;
+    }
+}
+
+class LeaveManagementSystem {
+    private List<LeaveRequest> requests = new ArrayList<>();
+
+    public LeaveRequest submitRequest(Employee employee,
+                                     LocalDate startDate,
+                                     LocalDate endDate) {
+        try {
+            LeaveRequest request = new LeaveRequest(employee, startDate, endDate);
+            requests.add(request);
+
+            System.out.println("Leave request submitted for " + employee.getName()
+                    + " (" + startDate + "-" + endDate + ").");
+            System.out.println("Status: Pending");
+
+            return request;
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        LeaveManagementSystem system = new LeaveManagementSystem();
+
+        Employee john = new FullTimeEmployee("John");
+        Employee jane = new PartTimeEmployee("Jane");
+
+        Reviewer alice = new Reviewer("Alice");
+        Reviewer bob = new Reviewer("Bob");
+
+        LeaveRequest johnRequest = system.submitRequest(
+                john, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 5));
+
+        if (johnRequest != null) {
+            johnRequest.review(alice, "Approved");
+            johnRequest.changeStatus("Pending");
+        }
+
+        LeaveRequest janeRequest = system.submitRequest(
+                jane, LocalDate.of(2026, 2, 10), LocalDate.of(2026, 2, 11));
+
+        if (janeRequest != null) {
+            janeRequest.review(bob, "Rejected");
+        }
+    }
+}

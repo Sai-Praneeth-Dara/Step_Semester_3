@@ -1,0 +1,167 @@
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+class Customer {
+    private String name;
+
+    public Customer(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+abstract class Room {
+    protected String roomNumber;
+
+    public Room(String roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    public String getRoomNumber() {
+        return roomNumber;
+    }
+
+    public abstract double calculatePrice(long nights);
+}
+
+class StandardRoom extends Room {
+    public StandardRoom(String roomNumber) {
+        super(roomNumber);
+    }
+
+    @Override
+    public double calculatePrice(long nights) {
+        return nights * 100.0;
+    }
+}
+
+class DeluxeRoom extends Room {
+    public DeluxeRoom(String roomNumber) {
+        super(roomNumber);
+    }
+
+    @Override
+    public double calculatePrice(long nights) {
+        return nights * 180.0;
+    }
+}
+
+class Suite extends Room {
+    public Suite(String roomNumber) {
+        super(roomNumber);
+    }
+
+    @Override
+    public double calculatePrice(long nights) {
+        return nights * 300.0;
+    }
+}
+
+class Reservation {
+    private Customer customer;
+    private Room room;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private LocalDate cancellationDeadline;
+    private boolean active;
+
+    public Reservation(Customer customer, Room room,
+                       LocalDate startDate, LocalDate endDate) {
+        this.customer = customer;
+        this.room = room;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.cancellationDeadline = startDate.minusDays(1);
+        this.active = true;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public double calculatePrice() {
+        long nights = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate);
+        return room.calculatePrice(nights);
+    }
+
+    public boolean overlaps(LocalDate start, LocalDate end) {
+        return active && startDate.isBefore(end) && start.isBefore(endDate);
+    }
+
+    public boolean cancel(LocalDate cancellationDate) {
+        if (!active) {
+            System.out.println("Reservation is already cancelled.");
+            return false;
+        }
+
+        if (cancellationDate.isAfter(cancellationDeadline)) {
+            System.out.println("Cancellation deadline has passed.");
+            return false;
+        }
+
+        active = false;
+        System.out.println("Reservation for " + customer.getName() + ", "
+                + room.getClass().getSimpleName() + " " + room.getRoomNumber()
+                + " (" + startDate + "-" + endDate + ") cancelled successfully.");
+        return true;
+    }
+}
+
+class HotelBookingSystem {
+    private List<Reservation> reservations = new ArrayList<>();
+
+    public boolean checkAvailability(Room room, LocalDate start, LocalDate end) {
+        if (start == null || end == null || !start.isBefore(end)) {
+            return false;
+        }
+
+        for (Reservation reservation : reservations) {
+            if (reservation.getRoom().getRoomNumber().equals(room.getRoomNumber())
+                    && reservation.overlaps(start, end)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public Reservation reserveRoom(Customer customer, Room room,
+                                   LocalDate start, LocalDate end) {
+        if (customer == null || room == null || start == null || end == null
+                || !start.isBefore(end)) {
+            System.out.println("Invalid reservation details.");
+            return null;
+        }
+
+        if (!checkAvailability(room, start, end)) {
+            System.out.println(room.getClass().getSimpleName() + " "
+                    + room.getRoomNumber() + " is not available from "
+                    + start + " to " + end + ".");
+            return null;
+        }
+
+        Reservation reservation = new Reservation(customer, room, start, end);
+        reservations.add(reservation);
+
+        System.out.println("Reservation confirmed for " + customer.getName()
+                + ", " + room.getClass().getSimpleName
