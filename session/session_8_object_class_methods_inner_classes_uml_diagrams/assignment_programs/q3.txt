@@ -1,0 +1,242 @@
+import java.time.LocalDateTime;
+import java.util.*;
+
+class Customer {
+    private String name;
+
+    public Customer(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+abstract class Seat {
+    protected String seatId;
+
+    public Seat(String seatId) {
+        this.seatId = seatId;
+    }
+
+    public String getSeatId() {
+        return seatId;
+    }
+
+    public abstract double getPrice();
+}
+
+class RegularSeat extends Seat {
+    public RegularSeat(String seatId) {
+        super(seatId);
+    }
+
+    @Override
+    public double getPrice() {
+        return 150.0;
+    }
+}
+
+class PremiumSeat extends Seat {
+    public PremiumSeat(String seatId) {
+        super(seatId);
+    }
+
+    @Override
+    public double getPrice() {
+        return 250.0;
+    }
+}
+
+class ReclinerSeat extends Seat {
+    public ReclinerSeat(String seatId) {
+        super(seatId);
+    }
+
+    @Override
+    public double getPrice() {
+        return 400.0;
+    }
+}
+
+class Show {
+    private String showName;
+    private LocalDateTime startTime;
+    private Map<String, Seat> bookedSeats = new HashMap<>();
+
+    public Show(String showName, LocalDateTime startTime) {
+        this.showName = showName;
+        this.startTime = startTime;
+    }
+
+    public String getShowName() {
+        return showName;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public boolean isSeatAvailable(String seatId) {
+        return !bookedSeats.containsKey(seatId);
+    }
+
+    public boolean bookSeats(List<Seat> seats) {
+        for (Seat seat : seats) {
+            if (!isSeatAvailable(seat.getSeatId())) {
+                System.out.println("Seat " + seat.getSeatId()
+                        + " is already booked for this show.");
+                return false;
+            }
+        }
+
+        for (Seat seat : seats) {
+            bookedSeats.put(seat.getSeatId(), seat);
+        }
+
+        return true;
+    }
+
+    public void releaseSeats(List<Seat> seats) {
+        for (Seat seat : seats) {
+            bookedSeats.remove(seat.getSeatId());
+        }
+    }
+}
+
+class Booking {
+    private Customer customer;
+    private Show show;
+    private List<Seat> seats;
+    private boolean active;
+
+    public Booking(Customer customer, Show show, List<Seat> seats) {
+        this.customer = customer;
+        this.show = show;
+        this.seats = new ArrayList<>(seats);
+        this.active = true;
+    }
+
+    public double calculateTotal() {
+        double total = 0;
+
+        for (Seat seat : seats) {
+            total += seat.getPrice();
+        }
+
+        return total;
+    }
+
+    public boolean cancel(LocalDateTime currentTime) {
+        if (!active) {
+            System.out.println("Booking is already cancelled.");
+            return false;
+        }
+
+        if (!currentTime.isBefore(show.getStartTime())) {
+            System.out.println("Cannot cancel booking after the show has started.");
+            return false;
+        }
+
+        show.releaseSeats(seats);
+        active = false;
+
+        StringBuilder released = new StringBuilder();
+
+        for (int i = 0; i < seats.size(); i++) {
+            if (i > 0) {
+                released.append(", ");
+            }
+            released.append(seats.get(i).getSeatId());
+        }
+
+        System.out.println(customer.getName() + "'s booking cancelled.");
+        System.out.println("Seats " + released + " released.");
+        return true;
+    }
+}
+
+class TicketBookingSystem {
+    public Booking bookSeats(Customer customer, Show show, List<Seat> seats) {
+        if (seats == null || seats.isEmpty() || seats.size() > 6) {
+            System.out.println("A booking must contain between 1 and 6 seats.");
+            return null;
+        }
+
+        Set<String> uniqueSeats = new HashSet<>();
+
+        for (Seat seat : seats) {
+            if (seat == null || !uniqueSeats.add(seat.getSeatId())) {
+                System.out.println("Invalid or duplicate seat selection.");
+                return null;
+            }
+        }
+
+        if (show.bookSeats(seats)) {
+            Booking booking = new Booking(customer, show, seats);
+
+            StringBuilder seatList = new StringBuilder();
+
+            for (int i = 0; i < seats.size(); i++) {
+                if (i > 0) {
+                    seatList.append(", ");
+                }
+                seatList.append(seats.get(i).getSeatId());
+            }
+
+            System.out.println("Booking confirmed for " + customer.getName()
+                    + ": " + seatList + ".");
+            System.out.printf("Total: ₹%.2f.%n", booking.calculateTotal());
+
+            return booking;
+        }
+
+        return null;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        TicketBookingSystem system = new TicketBookingSystem();
+
+        LocalDateTime showTime = LocalDateTime.of(2026, 10, 11, 19, 0);
+        Show show = new Show("7 PM Show", showTime);
+
+        Customer asha = new Customer("Asha");
+        Customer ravi = new Customer("Ravi");
+        Customer neha = new Customer("Neha");
+
+        Booking ashaBooking = system.bookSeats(
+                asha,
+                show,
+                Arrays.asList(
+                        new RegularSeat("A1"),
+                        new RegularSeat("A2"),
+                        new PremiumSeat("F5")
+                )
+        );
+
+        system.bookSeats(
+                ravi,
+                show,
+                Arrays.asList(new RegularSeat("A2"))
+        );
+
+        system.bookSeats(
+                ravi,
+                show,
+                Arrays.asList(new ReclinerSeat("R1"))
+        );
+
+        if (ashaBooking != null) {
+            ashaBooking.cancel(LocalDateTime.of(2026, 10, 11, 18, 0));
+        }
+
+        system.bookSeats(
+                neha,
+                show,
+                Arrays.asList(new RegularSeat("A2"))
+        );
+    }
+}

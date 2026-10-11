@@ -1,0 +1,174 @@
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+class Student {
+    private String name;
+
+    public Student(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+abstract class Assignment {
+    private String title;
+    private int maxMarks;
+    private LocalDate dueDate;
+
+    public Assignment(String title, int maxMarks, LocalDate dueDate) {
+        this.title = title;
+        this.maxMarks = maxMarks;
+        this.dueDate = dueDate;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public int getMaxMarks() {
+        return maxMarks;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public long getLateDays(LocalDate submissionDate) {
+        return Math.max(0, ChronoUnit.DAYS.between(dueDate, submissionDate));
+    }
+
+    public abstract double applyLatePenalty(int awardedMarks, long lateDays);
+}
+
+class CodingAssignment extends Assignment {
+    public CodingAssignment(String title, int maxMarks, LocalDate dueDate) {
+        super(title, maxMarks, dueDate);
+    }
+
+    @Override
+    public double applyLatePenalty(int awardedMarks, long lateDays) {
+        double penalty = Math.min(1.0, lateDays * 0.10);
+        return awardedMarks * (1.0 - penalty);
+    }
+}
+
+class WrittenAssignment extends Assignment {
+    public WrittenAssignment(String title, int maxMarks, LocalDate dueDate) {
+        super(title, maxMarks, dueDate);
+    }
+
+    @Override
+    public double applyLatePenalty(int awardedMarks, long lateDays) {
+        double penalty = Math.min(1.0, lateDays * 0.20);
+        return awardedMarks * (1.0 - penalty);
+    }
+}
+
+class Submission {
+    private Student student;
+    private Assignment assignment;
+    private LocalDate submissionDate;
+    private String status;
+    private double finalMarks;
+
+    public Submission(Student student, Assignment assignment, LocalDate submissionDate) {
+        this.student = student;
+        this.assignment = assignment;
+        this.submissionDate = submissionDate;
+        this.status = "Submitted";
+        this.finalMarks = 0;
+
+        long lateDays = assignment.getLateDays(submissionDate);
+
+        System.out.println(student.getName() + "'s submission for '"
+                + assignment.getTitle() + "' received ("
+                + (lateDays == 0 ? "on time" : lateDays + " days late") + ").");
+        System.out.println("Status: " + status);
+    }
+
+    public boolean grade(int awardedMarks) {
+        if (!status.equals("Submitted")) {
+            System.out.println("Cannot grade: submission is already graded.");
+            return false;
+        }
+
+        if (awardedMarks < 0 || awardedMarks > assignment.getMaxMarks()) {
+            System.out.println("Invalid marks awarded.");
+            return false;
+        }
+
+        long lateDays = assignment.getLateDays(submissionDate);
+        finalMarks = assignment.applyLatePenalty(awardedMarks, lateDays);
+        status = "Graded";
+
+        System.out.printf("%s graded: %.0f/%d", student.getName(),
+                finalMarks, assignment.getMaxMarks());
+
+        if (lateDays > 0) {
+            System.out.printf(" after %.0f%% late penalty", 
+                    Math.min(100, lateDays * getPenaltyRate()));
+        }
+
+        System.out.println(".");
+        System.out.println("Status: " + status);
+        return true;
+    }
+
+    private double getPenaltyRate() {
+        if (assignment instanceof CodingAssignment) {
+            return 10.0;
+        }
+        if (assignment instanceof WrittenAssignment) {
+            return 20.0;
+        }
+        return 0.0;
+    }
+
+    public boolean resubmit(LocalDate newSubmissionDate) {
+        if (status.equals("Graded")) {
+            System.out.println("Cannot resubmit: '" + assignment.getTitle()
+                    + "' has already been graded.");
+            return false;
+        }
+
+        submissionDate = newSubmissionDate;
+        System.out.println(student.getName() + "'s submission for '"
+                + assignment.getTitle() + "' updated.");
+        return true;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public double getFinalMarks() {
+        return finalMarks;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Assignment coding = new CodingAssignment(
+                "Linked List Lab", 50, LocalDate.of(2026, 3, 10));
+
+        Assignment written = new WrittenAssignment(
+                "Design Essay", 50, LocalDate.of(2026, 3, 12));
+
+        Student asha = new Student("Asha");
+        Student ravi = new Student("Ravi");
+
+        Submission ashaSubmission = new Submission(
+                asha, coding, LocalDate.of(2026, 3, 10));
+
+        Submission raviSubmission = new Submission(
+                ravi, written, LocalDate.of(2026, 3, 14));
+
+        ashaSubmission.grade(45);
+        raviSubmission.grade(40);
+
+        ashaSubmission.resubmit(LocalDate.of(2026, 3, 11));
+    }
+}

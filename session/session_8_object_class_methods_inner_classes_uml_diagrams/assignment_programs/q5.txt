@@ -1,0 +1,185 @@
+import java.util.*;
+
+interface NotificationChannel {
+    void send(Student student, Notice notice);
+    String getChannelName();
+}
+
+class EmailChannel implements NotificationChannel {
+    @Override
+    public void send(Student student, Notice notice) {
+        System.out.println("[Email → " + student.getName() + "] "
+                + notice.getTitle());
+    }
+
+    @Override
+    public String getChannelName() {
+        return "Email";
+    }
+}
+
+class SmsChannel implements NotificationChannel {
+    @Override
+    public void send(Student student, Notice notice) {
+        System.out.println("[SMS → " + student.getName() + "] "
+                + notice.getTitle());
+    }
+
+    @Override
+    public String getChannelName() {
+        return "SMS";
+    }
+}
+
+class AppChannel implements NotificationChannel {
+    @Override
+    public void send(Student student, Notice notice) {
+        System.out.println("[App → " + student.getName() + "] "
+                + notice.getTitle());
+    }
+
+    @Override
+    public String getChannelName() {
+        return "App";
+    }
+}
+
+class Student {
+    private String name;
+    private String department;
+    private List<NotificationChannel> preferredChannels;
+
+    public Student(String name, String department) {
+        this.name = name;
+        this.department = department;
+        this.preferredChannels = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void addPreferredChannel(NotificationChannel channel) {
+        if (channel != null && !preferredChannels.contains(channel)) {
+            preferredChannels.add(channel);
+        }
+    }
+
+    public List<NotificationChannel> getPreferredChannels() {
+        return Collections.unmodifiableList(preferredChannels);
+    }
+}
+
+class Notice {
+    private String title;
+    private Set<String> targetDepartments;
+
+    public Notice(String title, Set<String> targetDepartments) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Cannot post notice: Title is required.");
+        }
+
+        if (targetDepartments == null || targetDepartments.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Cannot post notice: At least one target department is required.");
+        }
+
+        this.title = title.trim();
+        this.targetDepartments = new LinkedHashSet<>();
+
+        for (String department : targetDepartments) {
+            if (department != null && !department.trim().isEmpty()) {
+                this.targetDepartments.add(department.trim());
+            }
+        }
+
+        if (this.targetDepartments.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Cannot post notice: At least one target department is required.");
+        }
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Set<String> getTargetDepartments() {
+        return Collections.unmodifiableSet(targetDepartments);
+    }
+}
+
+class NoticeBoard {
+    private List<Student> students = new ArrayList<>();
+    private List<Notice> notices = new ArrayList<>();
+
+    public void registerStudent(Student student) {
+        if (student != null) {
+            students.add(student);
+        }
+    }
+
+    public void postNotice(String title, Set<String> departments) {
+        Notice notice;
+
+        try {
+            notice = new Notice(title, departments);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
+        notices.add(notice);
+
+        System.out.println("Notice '" + notice.getTitle()
+                + "' posted to "
+                + String.join(", ", notice.getTargetDepartments()) + ".");
+
+        for (Student student : students) {
+            if (notice.getTargetDepartments().contains(student.getDepartment())) {
+                for (NotificationChannel channel : student.getPreferredChannels()) {
+                    channel.send(student, notice);
+                }
+            }
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        NoticeBoard board = new NoticeBoard();
+
+        EmailChannel email = new EmailChannel();
+        SmsChannel sms = new SmsChannel();
+        AppChannel app = new AppChannel();
+
+        Student asha = new Student("Asha", "CSE");
+        asha.addPreferredChannel(email);
+        asha.addPreferredChannel(app);
+
+        Student ravi = new Student("Ravi", "ECE");
+        ravi.addPreferredChannel(sms);
+
+        board.registerStudent(asha);
+        board.registerStudent(ravi);
+
+        board.postNotice(
+                "Lab Closed Tomorrow",
+                new LinkedHashSet<>(Arrays.asList("CSE"))
+        );
+
+        board.postNotice(
+                "Fee Deadline Extended",
+                new LinkedHashSet<>(Arrays.asList("CSE", "ECE"))
+        );
+
+        board.postNotice(
+                "Sports Day",
+                new LinkedHashSet<>()
+        );
+    }
+}
